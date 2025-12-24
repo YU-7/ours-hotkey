@@ -1,0 +1,30 @@
+{
+  "Windows": {
+    "Max": {
+      "Oringin": "win + ",
+      "Remap": "CapsLock + b"
+    },
+    "Min": {
+      "Oringin": "win + ",
+      "Remap": "CapsLock + q"
+    },
+    "Close": {
+      "Oringin": "win + ",
+      "Remap": "CapsLock + X"
+    }
+  },
+  "TaskManger": {
+    "Open": {
+      "Oringin": "alt + tab + ctrl",
+      "Remap": "CapsLock + E"
+    },
+    "Direction": {
+      "Up": "E",
+      "Down": "D",
+      "Left": "S",
+      "Right": "F",
+      "Close": "X",
+      "Enter": "Enter"
+    }
+  }
+}

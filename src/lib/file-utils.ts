@@ -1,4 +1,4 @@
-import { readTextFile, writeTextFile, exists, createDir } from '@tauri-apps/plugin-fs';
+import { readTextFile, writeTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
 import { appDataDir } from '@tauri-apps/api/path';
 
 /**
@@ -48,7 +48,7 @@ export async function writeJsonFile<T = any>(filename: string, data: T): Promise
     // 确保目录存在
     const dirExists = await exists(appDataPath);
     if (!dirExists) {
-      await createDir(appDataPath, { recursive: true });
+      await mkdir(appDataPath, { recursive: true });
     }
     
     // 构建完整文件路径（确保路径以 / 结尾）
@@ -93,5 +93,22 @@ export async function fileExists(filename: string): Promise<boolean> {
  */
 export async function getAppDataDir(): Promise<string> {
   return await appDataDir();
+}
+
+/**
+ * 确保应用数据目录存在，如果不存在则创建
+ */
+export async function ensureAppDataDir(): Promise<void> {
+  try {
+    const appDataPath = await appDataDir();
+    const dirExists = await exists(appDataPath);
+    if (!dirExists) {
+      await mkdir(appDataPath, { recursive: true });
+      console.log("应用数据目录已创建:", appDataPath);
+    }
+  } catch (error) {
+    console.error("创建应用数据目录失败:", error);
+    throw error;
+  }
 }
 
