@@ -4,3 +4,14 @@
 @import '@skeletonlabs/skeleton-svelte'; 
 @import '@skeletonlabs/skeleton/themes/cerberus';
 @custom-variant dark (&:where(.dark, .dark *));
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden;
+}
