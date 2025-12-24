@@ -7,12 +7,15 @@
     TreePalmIcon,
   } from "@lucide/svelte";
   import { Navigation } from "@skeletonlabs/skeleton-svelte";
+  import Settings from "$lib/components/Settings.svelte";
+
+  type ViewType = "hotkeys" | "commands" | "vim" | "settings";
 
   const links = [
-    { label: "系统级热键", href: "/#", icon: HouseIcon },
-    { label: "快捷命令", href: "/#", icon: BookIcon },
-    { label: "Vim模式", href: "/#", icon: BikeIcon },
-    { label: "软件设置", href: "/#", icon: TreePalmIcon },
+    { label: "系统级热键", id: "hotkeys" as ViewType, icon: HouseIcon },
+    { label: "快捷命令", id: "commands" as ViewType, icon: BookIcon },
+    { label: "Vim模式", id: "vim" as ViewType, icon: BikeIcon },
+    { label: "软件设置", id: "settings" as ViewType, icon: TreePalmIcon },
   ];
 
   const buttonClasses = "btn hover:preset-tonal";
@@ -20,9 +23,14 @@
   let anchorSidebar = `${buttonClasses} justify-start px-2 w-full`;
 
   let layoutRail = $state(true);
+  let currentView = $state<ViewType>("hotkeys");
 
   function toggleLayout() {
     layoutRail = !layoutRail;
+  }
+
+  function handleNavClick(viewId: ViewType) {
+    currentView = viewId;
   }
 </script>
 
@@ -47,7 +55,10 @@
       <Navigation.Menu class="flex-1 overflow-y-auto min-h-0">
         {#each links as link (link)}
           {@const Icon = link.icon}
-          <Navigation.TriggerAnchor>
+          <Navigation.TriggerAnchor
+            onclick={() => handleNavClick(link.id)}
+            class={currentView === link.id ? "bg-surface-300-700" : ""}
+          >
             <Icon class={layoutRail ? "size-5" : "size-4"} />
             <Navigation.TriggerText>{link.label}</Navigation.TriggerText>
           </Navigation.TriggerAnchor>
@@ -56,7 +67,30 @@
     </Navigation.Content>
   </Navigation>
   <!-- --- -->
-  <div class="flex justify-center items-center overflow-hidden min-h-0">
-    <pre class="pre">Layout: {layoutRail ? "Rail" : "Sidebar"}</pre>
+  <div class="overflow-hidden min-h-0 overflow-y-auto">
+    {#if currentView === "settings"}
+      <Settings />
+    {:else if currentView === "hotkeys"}
+      <div class="flex justify-center items-center h-full p-6">
+        <div class="text-center">
+          <h2 class="text-xl font-semibold mb-2">系统级热键</h2>
+          <p class="text-surface-600-300">功能开发中...</p>
+        </div>
+      </div>
+    {:else if currentView === "commands"}
+      <div class="flex justify-center items-center h-full p-6">
+        <div class="text-center">
+          <h2 class="text-xl font-semibold mb-2">快捷命令</h2>
+          <p class="text-surface-600-300">功能开发中...</p>
+        </div>
+      </div>
+    {:else if currentView === "vim"}
+      <div class="flex justify-center items-center h-full p-6">
+        <div class="text-center">
+          <h2 class="text-xl font-semibold mb-2">Vim模式</h2>
+          <p class="text-surface-600-300">功能开发中...</p>
+        </div>
+      </div>
+    {/if}
   </div>
 </div>

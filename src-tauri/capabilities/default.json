@@ -12,6 +12,9 @@
     "fs:allow-mkdir",
     "fs:allow-exists",
     "fs:scope-appdata",
-    "core:path:default"
+    "core:path:default",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ]
 }
