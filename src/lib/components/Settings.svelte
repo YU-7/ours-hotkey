@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { checkAutostartStatus, toggleAutostart } from "$lib/autostart";
+  import { checkAutostartStatus, toggleAutostart } from "$lib/auto-start";
   import { getAppDataDir, ensureAppDataDir } from "$lib/file-utils";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
 
