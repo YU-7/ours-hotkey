@@ -1,16 +1,30 @@
 {
   "Windows": {
-    "Max": {
+    "Maximum": {
       "Oringin": "win + ",
-      "Remap": "CapsLock + b"
+      "Remap": "CapsLock + B"
     },
-    "Min": {
+    "Minimum": {
       "Oringin": "win + ",
-      "Remap": "CapsLock + q"
+      "Remap": "CapsLock + Q"
     },
-    "Close": {
+    "CloseWindow": {
       "Oringin": "win + ",
       "Remap": "CapsLock + X"
+    },
+    "SwitchWindow": {
+      "Oringin": "win + ",
+      "Remap": "CapsLock + V"
+    }
+  },
+  "VurtualDesktop": {
+    "GoPrevious": {
+      "Oringin": "ctrl + win + UP",
+      "Remap": "CapsLock + Y"
+    },
+    "GoNext": {
+      "Oringin": "ctrl + win + DOWN",
+      "Remap": "CapsLock + P"
     }
   },
   "TaskManger": {
@@ -23,8 +37,12 @@
       "Down": "D",
       "Left": "S",
       "Right": "F",
-      "Close": "X",
+      "Close": "C",
       "Enter": "Enter"
     }
+  },
+  "CopyFilePath": {
+    "Oringin": "ctrl + c",
+    "Remap": "CapsLock + Z"
   }
 }
