@@ -1,3 +1,10 @@
 {
-  "svelte.enable-ts-plugin": true
+  "svelte.enable-ts-plugin": true,
+  "AHK++.v2.file": {
+    "compileBaseFile": "",
+    "helpPath": "C:/Program Files/AutoHotkey/v2/AutoHotkey.chm",
+    "interpreterPath": "c:\\Program Files\\WindowsApps\\53721Descolada.AutoHotkeyv2StoreEdition_2.0.18.0_x64__m6g97a4f38wd4\\VFS\\ProgramFilesX64\\AutoHotkey\\v2\\AutoHotkeyV2.exe",
+    "maxScanDepth": 2,
+    "templateSnippetName": "AhkTemplateV2"
+  }
 }
