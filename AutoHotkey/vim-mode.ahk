@@ -49,35 +49,6 @@ F12::
     return
 }
 
-{
-    ; 启动时初始化所有热键为禁用状态
-    Hotkey("h", hk_Normal_h, "Off")
-    Hotkey("j", hk_Normal_j, "Off")
-    Hotkey("k", hk_Normal_k, "Off")
-    Hotkey("l", hk_Normal_l, "Off")
-    Hotkey("x", hk_Normal_x, "Off")
-    Hotkey("+X", hk_Normal_X, "Off")
-    Hotkey("d", hk_Normal_d, "Off")
-    Hotkey("y", hk_Normal_y, "Off")
-    Hotkey("u", hk_Normal_u, "Off")
-    Hotkey("^r", hk_Normal_r, "Off")
-    Hotkey("i", hk_Normal_i, "Off")
-    ; Hotkey("v", hk_Normal_v, "Off") ; Commented out as per previous user changes
-    ; Hotkey("+a", hk_Normal_A, "Off") ; Commented out as per previous user changes
-
-    Hotkey("h", hk_Visual_h, "Off")
-    Hotkey("j", hk_Visual_j, "Off")
-    Hotkey("k", hk_Visual_k, "Off")
-    Hotkey("l", hk_Visual_l, "Off")
-    Hotkey("x", hk_Visual_x, "Off")
-    Hotkey("d", hk_Visual_d, "Off")
-    Hotkey("Escape", hk_Visual_Escape, "Off")
-
-    Hotkey("Escape", hk_Insert_Escape, "Off")
-
-    EnterNormalMode() ; 启动时进入普通模式
-}
-
 ; === 模式指示器 ===
 ShowMode() {
     modeText := ""
