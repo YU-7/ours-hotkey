@@ -3,6 +3,7 @@
 #SingleInstance Force
 SendMode("Input")
 SetWorkingDir(A_ScriptDir)
+Persistent
 
 ; === 全局变量 ===
 global vimMode := "mormal"  ; 当前模式: "normal", "visual", "insert"
@@ -58,16 +59,8 @@ ShowMode() {
         case "insert": modeText := "INSERT"
     }
 
-    ; 显示模式指示器（暂时用工具提示，后续可以优化为状态栏）
-    ; 声明为全局以避免警告
-    global A_ScreenWidth
-    ToolTip(modeText, A_ScreenWidth - 100, 10)
-    SetTimer(HideTooltip, -2000)  ; 2秒后隐藏
-}
-
-; === 隐藏工具提示的函数 ===
-HideTooltip() {
-    ToolTip()
+    ; 输出当前模式到stdout供外部程序捕获, * 代表stdout
+    FileAppend(modeText "`n", "*")
 }
 
 ; === 模式切换函数 ===
