@@ -2,7 +2,7 @@
 #SingleInstance Force
 SendMode("Input")
 SetWorkingDir(A_ScriptDir)
-#Include %A_ScriptDir%\config\system-level.ahk
+; #Include %A_ScriptDir%\config\system-level.ahk
 Persistent
 ; 禁用 CapsLock 键，还是能够触发的，但是被ahk拦截下来了，你可以看见capslook的灯很快亮了一下
 CapsLock:: return
@@ -33,7 +33,6 @@ IsInTaskView() {
         return false
 
     } catch {
-        FileAppend("Error: Failed to get window class`n", "*")
         return false
     }
 
