@@ -2,6 +2,8 @@
 #SingleInstance Force
 SendMode("Input")
 SetWorkingDir(A_ScriptDir)
+; 隐藏托盘图标
+#NoTrayIcon
 ; #Include %A_ScriptDir%\config\system-level.ahk
 Persistent
 ; 禁用 CapsLock 键，还是能够触发的，但是被ahk拦截下来了，你可以看见capslook的灯很快亮了一下
