@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process::{Child, Command};
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Manager, State, WebviewUrl};
 
 // 用于管理运行中的 AHK 进程
 pub struct AhkProcessManager(pub Mutex<HashMap<String, Child>>);
@@ -173,4 +173,29 @@ pub fn test_ahk_paths(app: AppHandle) -> Result<String, String> {
     result.push_str(&format!("Script path: {:?}\n", script_path));
 
     Ok(result)
+}
+
+#[tauri::command]
+pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
+    // 检查窗口是否已经存在
+    if let Some(window) = app.get_webview_window("command") {
+        // 如果窗口存在，聚焦到它
+        window.set_focus().map_err(|e| format!("Failed to focus command window: {}", e))?;
+        return Ok("Command window focused".to_string());
+    }
+
+    // 创建新的 command 窗口
+    let _window = tauri::webview::WebviewWindowBuilder::new(&app, "command", WebviewUrl::App("/command".into()))
+        .title("快捷命令")
+        .inner_size(400.0, 80.0)
+        .center()
+        .decorations(false) // 无边框窗口
+        .transparent(true) // 透明背景
+        .always_on_top(true) // 始终在最前
+        .skip_taskbar(true) // 不显示在任务栏
+        .resizable(false) // 不可调整大小
+        .build()
+        .map_err(|e| format!("Failed to create command window: {}", e))?;
+
+    Ok("Command window opened".to_string())
 }

@@ -3,6 +3,7 @@
   import { checkAutostartStatus, toggleAutostart } from "$lib/auto-start";
   import { getAppDataDir, ensureAppDataDir } from "$lib/file-utils";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { invoke } from "@tauri-apps/api/core";
 
   let autostartEnabled = $state(false);
   let loading = $state(false);
@@ -58,6 +59,20 @@
     } catch (error) {
       console.error("打开文件夹失败:", error);
       errorMessage = `打开文件夹失败: ${error instanceof Error ? error.message : String(error)}`;
+      // 3秒后清除错误消息
+      setTimeout(() => {
+        errorMessage = "";
+      }, 3000);
+    }
+  }
+
+  async function openCommandWindow() {
+    try {
+      const result = await invoke("open_command_window");
+      console.log("命令窗口已打开:", result);
+    } catch (error) {
+      console.error("打开命令窗口失败:", error);
+      errorMessage = `打开命令窗口失败: ${error instanceof Error ? error.message : String(error)}`;
       // 3秒后清除错误消息
       setTimeout(() => {
         errorMessage = "";
@@ -123,6 +138,21 @@
         {:else}
           <p class="text-sm text-surface-500-400">无法获取应用数据目录路径</p>
         {/if}
+      </div>
+    </div>
+
+    <!-- 测试命令窗口 -->
+    <div class="card p-4">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-lg font-semibold">测试功能</h2>
+        <p class="text-sm text-surface-600-300">测试无边框命令窗口功能</p>
+        <button
+          class="btn btn-sm w-fit"
+          onclick={openCommandWindow}
+          disabled={loading}
+        >
+          打开命令窗口
+        </button>
       </div>
     </div>
   </div>

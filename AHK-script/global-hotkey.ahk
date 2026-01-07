@@ -87,7 +87,7 @@ LaunchOursHotkey() {
         upPos := InStr(scriptDir, "\_up_")
 
         baseDir := SubStr(scriptDir, 1, upPos - 1)
-        oursHotkeyPath := baseDir "\ours-hotkey.exe"
+        oursHotkeyPath := baseDir "\ours-hotkey.exe --command-mode"
         Run(oursHotkeyPath)
         return
     } catch {

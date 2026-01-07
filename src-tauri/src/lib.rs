@@ -24,6 +24,7 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_autostart::MacosLauncher;
+                use tauri::WebviewUrl;
                 #[cfg(target_os = "macos")]
                 {
                     app.handle().plugin(tauri_plugin_autostart::init(
@@ -41,6 +42,29 @@ pub fn run() {
                     ))?;
                 }
 
+                // 检查环境变量，如果设置了 COMMAND_MODE 则创建命令窗口并隐藏主窗口
+                if std::env::var("COMMAND_MODE").is_ok() {
+                    println!("启动命令模式");
+
+                    // 隐藏主窗口
+                    if let Some(main_window) = app.get_webview_window("main") {
+                        let _ = main_window.hide();
+                    }
+
+                    // 创建命令窗口
+                    let _command_window = tauri::webview::WebviewWindowBuilder::new(app, "command", WebviewUrl::App("/command".into()))
+                        .title("快捷命令")
+                        .inner_size(400.0, 80.0)
+                        .center()
+                        .decorations(false) // 无边框窗口
+                        .transparent(true) // 透明背景
+                        .always_on_top(true) // 始终在最前
+                        .skip_taskbar(true) // 不显示在任务栏
+                        .resizable(false) // 不可调整大小
+                        .build()
+                        .map_err(|e| format!("Failed to create command window: {}", e))?;
+                }
+
                 // 读取配置文件并自动启动脚本
                 hooks::auto_start_scripts(&app.handle())?;
 
@@ -55,7 +79,8 @@ pub fn run() {
             ahk::stop_ahk_script,
             ahk::stop_all_ahk_scripts,
             ahk::list_running_scripts,
-            ahk::test_ahk_paths
+            ahk::test_ahk_paths,
+            ahk::open_command_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
