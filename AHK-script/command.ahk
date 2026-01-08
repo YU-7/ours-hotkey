@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+; & ".\AutoHotkey\AutoHotkey64.exe" ".\AHK-script\command.ahk" calc
 global userStartMenuFile := A_AppData "\Microsoft\Windows\Start Menu"
 ; 打开 Windows 自带的计算器
 OpenCalculator() {
@@ -82,58 +83,35 @@ GetErrorMessage(errorCode) {
 
 main() {
     ; 检查命令行参数
-        functionName := A_Args[1]
-        ; 根据函数名调用相应函数
-        switch functionName {
-            case "calculator", "calc":
-                OpenCalculator()
-            case "explorer", "file":
-                OpenFileExplorer()
-            case "taskmgr", "task":
-                OpenTaskManager()
-            case "terminal", "cmd":
-                OpenTerminal()
-            case "bluetooth", "bt":
-                OpenBluetoothSettings()
-            case "wifi", "network":
-                OpenWifiSettings()
-            case "downloads", "download":
-                OpenDownloads()
-            case "volume", "sound":
-                OpenVolumeSettings()
-            case "recycle", "bin":
-                OpenRecycleBin()
-            default:
-                ShowHelp()
-        
-    }
+    functionName := A_Args[1]
+
+    ; 创建函数映射
+    functionMap := Map(
+        "calculator", OpenCalculator,
+        "calc", OpenCalculator,
+        "explorer", OpenFileExplorer,
+        "file", OpenFileExplorer,
+        "taskmgr", OpenTaskManager,
+        "task", OpenTaskManager,
+        "terminal", OpenTerminal,
+        "cmd", OpenTerminal,
+        "bluetooth", OpenBluetoothSettings,
+        "bt", OpenBluetoothSettings,
+        "wifi", OpenWifiSettings,
+        "network", OpenWifiSettings,
+        "downloads", OpenDownloads,
+        "download", OpenDownloads,
+        "volume", OpenVolumeSettings,
+        "sound", OpenVolumeSettings,
+        "recycle", OpenRecycleBin,
+        "bin", OpenRecycleBin
+    )
+
+    ; 调用对应的函数
+    if functionMap.Has(functionName) {
+        functionMap[functionName]()
+    } 
 }
 
-ShowHelp() {
-    helpText := "
-    (
-AutoHotkey 快捷工具
-
-用法: command.ahk <命令>
-
-可用命令:
-  calculator, calc    - 打开计算器
-  explorer, file      - 打开文件资源管理器
-  taskmgr, task       - 打开任务管理器
-  terminal, cmd       - 打开命令提示符
-  bluetooth, bt       - 打开蓝牙设置
-  wifi, network       - 打开WiFi设置
-  downloads, download - 打开下载目录
-  volume, sound       - 打开音量设置
-  recycle, bin        - 打开回收站
-
-示例:
-  command.ahk calculator
-  command.ahk wifi
-  command.ahk downloads
-    )"
-
-    MsgBox helpText, "帮助信息", 0x40
-}
 
 main()
