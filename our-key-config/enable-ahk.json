@@ -1,4 +1,5 @@
 {
     "global-hotkey":true,
-    "vimMode":false
+    "vimMode":false,
+    "capslock":true
 }

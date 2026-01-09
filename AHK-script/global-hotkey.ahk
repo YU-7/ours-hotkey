@@ -6,8 +6,12 @@ SetWorkingDir(A_ScriptDir)
 #NoTrayIcon
 ; #Include %A_ScriptDir%\config\system-level.ahk
 Persistent
-; 按下 CapsLock 键启动 ours-hotkey 应用程序
-; CapsLock:: LaunchOursHotkey()
+; 阻止 CapsLock 的默认行为，并触发 F24 来通知 Tauri
+CapsLock:: {
+    ; 阻止 CapsLock 的默认行为（不切换大小写锁定）
+    ; 发送 F24 按键来通知 Tauri 打开命令窗口
+    Send("{F24}")
+}
 
 ; 绑定 Windows 窗口操作
 WindowsOprate() {
@@ -77,23 +81,6 @@ disableTaskManagerRemap() {
 initGlobalHotkey() {
     WindowsOprate()
     taskManagerInit()
-}
-
-; 启动 ours-hotkey 应用程序
-LaunchOursHotkey() {
-    try {
-        scriptDir := A_ScriptDir
-        ; 找到 \_up_ 在字符串中的位置
-        upPos := InStr(scriptDir, "\_up_")
-
-        baseDir := SubStr(scriptDir, 1, upPos - 1)
-        oursHotkeyPath := baseDir "\ours-hotkey.exe --command-mode"
-        Run(oursHotkeyPath)
-        return
-    } catch {
-        ; 如果所有方法都失败，显示错误消息
-        MsgBox(oursHotkeyPath "`n" "无法找到 ours-hotkey 应用程序。请确保应用程序已正确安装。")
-    }
 }
 
 initGlobalHotkey()

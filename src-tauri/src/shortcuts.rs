@@ -3,16 +3,16 @@ use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut, ShortcutSt
 use crate::ahk;
 
 pub fn register_global_shortcuts(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let capslock_shortcut = Shortcut::new(None, Code::CapsLock);
+    let f24_shortcut = Shortcut::new(None, Code::F24);
     let app_handle = app.handle().clone();
     
     app.handle().plugin(
         tauri_plugin_global_shortcut::Builder::new().with_handler(move |_app, shortcut, event| {
             println!("Shortcut triggered: {:?}", shortcut);
-            if shortcut == &capslock_shortcut {
+            if shortcut == &f24_shortcut {
                 match event.state() {
                     ShortcutState::Pressed => {
-                        println!("CapsLock Pressed! Opening command window...");
+                        println!("F24 Pressed! Opening command window...");
                         let handle = app_handle.clone();
                         tauri::async_runtime::spawn(async move {
                             match ahk::open_command_window(handle).await {
@@ -22,7 +22,7 @@ pub fn register_global_shortcuts(app: &tauri::App) -> Result<(), Box<dyn std::er
                         });
                     }
                     ShortcutState::Released => {
-                        println!("CapsLock Released!");
+                        println!("F24 Released!");
                     }
                 }
             }
@@ -30,9 +30,9 @@ pub fn register_global_shortcuts(app: &tauri::App) -> Result<(), Box<dyn std::er
         .build(),
     )?;
 
-    match app.global_shortcut().register(capslock_shortcut) {
-        Ok(_) => println!("CapsLock shortcut registered successfully"),
-        Err(e) => eprintln!("Failed to register CapsLock shortcut: {}", e),
+    match app.global_shortcut().register(f24_shortcut) {
+        Ok(_) => println!("F24 shortcut registered successfully"),
+        Err(e) => eprintln!("Failed to register F24 shortcut: {}", e),
     };
 
     Ok(())
