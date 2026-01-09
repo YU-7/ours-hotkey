@@ -7,7 +7,7 @@ SetWorkingDir(A_ScriptDir)
 ; #Include %A_ScriptDir%\config\system-level.ahk
 Persistent
 ; 按下 CapsLock 键启动 ours-hotkey 应用程序
-CapsLock:: LaunchOursHotkey()
+; CapsLock:: LaunchOursHotkey()
 
 ; 绑定 Windows 窗口操作
 WindowsOprate() {

@@ -10,7 +10,6 @@ mod hooks;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -25,6 +24,7 @@ pub fn run() {
             {
                 use tauri_plugin_autostart::MacosLauncher;
                 use tauri::WebviewUrl;
+                use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
                 #[cfg(target_os = "macos")]
                 {
                     app.handle().plugin(tauri_plugin_autostart::init(
@@ -70,6 +70,26 @@ pub fn run() {
 
                 // 注册应用退出时的清理钩子
                 hooks::setup_exit_cleanup(app.handle())?;
+
+                // 注册全局快捷键监听器
+                let capslock_shortcut = Shortcut::new(None, Code::CapsLock);
+                let app_handle = app.handle().clone();
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new().with_handler(move |_app, shortcut, event| {
+                        if shortcut == &capslock_shortcut {
+                            match event.state() {
+                                ShortcutState::Pressed => {
+                                    let _ = ahk::open_command_window(app_handle.clone());
+                                }
+                                ShortcutState::Released => {
+                                }
+                            }
+                        }
+                    })
+                    .build(),
+                )?;
+
+                app.global_shortcut().register(capslock_shortcut)?;
             }
             Ok(())
         })
