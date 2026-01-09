@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::process::{Child, Command};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager, State, WebviewUrl};
+use serde::{Deserialize, Serialize};
 
 // 用于管理运行中的 AHK 进程
 pub struct AhkProcessManager(pub Mutex<HashMap<String, Child>>);
@@ -198,4 +199,72 @@ pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
         .map_err(|e| format!("Failed to create command window: {}", e))?;
 
     Ok("Command window opened".to_string())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CommandConfig {
+    #[serde(rename = "isEnabled")]
+    is_enabled: bool,
+    key: String,
+    #[serde(rename = "AHKcommand")]
+    ahk_command: String,
+}
+
+#[tauri::command]
+pub fn get_command_config(app: AppHandle) -> Result<std::collections::HashMap<String, serde_json::Value>, String> {
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("获取资源目录失败: {}", e))?
+        .join("_up_");
+
+    let config_path = resource_dir.join("our-key-config").join("command.json");
+
+    let config_content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("读取配置文件失败: {}", e))?;
+
+    let config: std::collections::HashMap<String, CommandConfig> = serde_json::from_str(&config_content)
+        .map_err(|e| format!("解析配置文件失败: {}", e))?;
+
+    let mut result = std::collections::HashMap::new();
+    for (key, value) in config {
+        let mut map = serde_json::Map::new();
+        map.insert("isEnabled".to_string(), serde_json::Value::Bool(value.is_enabled));
+        map.insert("key".to_string(), serde_json::Value::String(value.key));
+        map.insert("AHKcommand".to_string(), serde_json::Value::String(value.ahk_command));
+        result.insert(key, serde_json::Value::Object(map));
+    }
+
+    Ok(result)
+}
+
+#[tauri::command]
+pub fn update_command_config(app: AppHandle, command_name: String, is_enabled: bool) -> Result<String, String> {
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("获取资源目录失败: {}", e))?
+        .join("_up_");
+
+    let config_path = resource_dir.join("our-key-config").join("command.json");
+
+    let config_content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("读取配置文件失败: {}", e))?;
+
+    let mut config: std::collections::HashMap<String, CommandConfig> = serde_json::from_str(&config_content)
+        .map_err(|e| format!("解析配置文件失败: {}", e))?;
+
+    if let Some(cmd_config) = config.get_mut(&command_name) {
+        cmd_config.is_enabled = is_enabled;
+    } else {
+        return Err(format!("命令 '{}' 不存在", command_name));
+    }
+
+    let updated_content = serde_json::to_string_pretty(&config)
+        .map_err(|e| format!("序列化配置文件失败: {}", e))?;
+
+    std::fs::write(&config_path, updated_content)
+        .map_err(|e| format!("写入配置文件失败: {}", e))?;
+
+    Ok(format!("命令 '{}' 已更新", command_name))
 }

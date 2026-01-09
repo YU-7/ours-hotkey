@@ -1,0 +1,57 @@
+{
+    "OpenTerminal": {
+        "isEnabled": true,
+        "key": "CMD",
+        "AHKcommand": "CMD"
+    },
+    "OpenFileExplorer": {
+        "isEnabled": true,
+        "key": "E",
+        "AHKcommand": "explorer"
+    },
+    "OpenCalculator": {
+        "isEnabled": true,  
+        "key": "CA",
+        "AHKcommand": "calc"
+    },
+    "OpenNotepad": {
+        "isEnabled": true,      
+        "key": "N",
+        "AHKcommand": "notepad"
+    },
+    "OpenChrome": {
+        "isEnabled": true,      
+        "key": "C",
+        "AHKcommand": "chrome"
+    },
+    "OpenDownloads": {
+        "isEnabled": true,      
+        "key": "D",
+        "AHKcommand": "explorer shell:downloads"
+    },
+    "OpenTaskManger": {
+        "isEnabled": true,          
+        "key": "T",
+        "AHKcommand": "taskmgr"
+    },
+    "OpenBluetooth": {
+        "isEnabled": true,          
+        "key": "S",
+        "AHKcommand": "ms-settings:bluetooth"
+    },
+    "OpenWiFi": {
+        "isEnabled": true,          
+        "key": "N",
+        "AHKcommand": "ms-settings:network"
+    },
+    "OpenSound": {
+        "isEnabled": true,          
+        "key": "V",
+        "AHKcommand": "ms-settings:sound"
+    },
+    "OpenRecycleBin": {
+        "isEnabled": true,          
+        "key": "R",
+        "AHKcommand": "explorer shell:recyclebin"
+    }
+}

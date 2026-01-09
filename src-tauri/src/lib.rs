@@ -57,7 +57,9 @@ pub fn run() {
             ahk::stop_all_ahk_scripts,
             ahk::list_running_scripts,
             ahk::test_ahk_paths,
-            ahk::open_command_window
+            ahk::open_command_window,
+            ahk::get_command_config,
+            ahk::update_command_config
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

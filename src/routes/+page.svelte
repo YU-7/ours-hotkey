@@ -9,6 +9,7 @@
   import { Navigation } from "@skeletonlabs/skeleton-svelte";
   import Settings from "$lib/components/Settings.svelte";
   import HotkeysConfig from "$lib/components/HotkeysConfig.svelte";
+  import CommandConfig from "$lib/components/CommandConfig.svelte";
   import type { ViewType } from "../interface/types";
 
   const links = [
@@ -73,12 +74,7 @@
     {:else if currentView === "hotkeys"}
       <HotkeysConfig />
     {:else if currentView === "commands"}
-      <div class="flex justify-center items-center h-full p-6">
-        <div class="text-center">
-          <h2 class="text-xl font-semibold mb-2">快捷命令</h2>
-          <p class="text-surface-600-300">功能开发中...</p>
-        </div>
-      </div>
+      <CommandConfig />
     {:else if currentView === "vim"}
       <div class="flex justify-center items-center h-full p-6">
         <div class="text-center">
