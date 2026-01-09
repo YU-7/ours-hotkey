@@ -23,8 +23,7 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_autostart::MacosLauncher;
-                use tauri::WebviewUrl;
-                use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+                use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut, ShortcutState};
                 #[cfg(target_os = "macos")]
                 {
                     app.handle().plugin(tauri_plugin_autostart::init(
@@ -41,33 +40,8 @@ pub fn run() {
                         None, // 可以在这里传递启动参数，例如: Some(vec!["--flag1", "--flag2"])
                     ))?;
                 }
-
-                // 检查环境变量，如果设置了 COMMAND_MODE 则创建命令窗口并隐藏主窗口
-                if std::env::var("COMMAND_MODE").is_ok() {
-                    println!("启动命令模式");
-
-                    // 隐藏主窗口
-                    if let Some(main_window) = app.get_webview_window("main") {
-                        let _ = main_window.hide();
-                    }
-
-                    // 创建命令窗口
-                    let _command_window = tauri::webview::WebviewWindowBuilder::new(app, "command", WebviewUrl::App("/command".into()))
-                        .title("快捷命令")
-                        .inner_size(400.0, 80.0)
-                        .center()
-                        .decorations(false) // 无边框窗口
-                        .transparent(true) // 透明背景
-                        .always_on_top(true) // 始终在最前
-                        .skip_taskbar(true) // 不显示在任务栏
-                        .resizable(false) // 不可调整大小
-                        .build()
-                        .map_err(|e| format!("Failed to create command window: {}", e))?;
-                }
-
                 // 读取配置文件并自动启动脚本
                 hooks::auto_start_scripts(&app.handle())?;
-
                 // 注册应用退出时的清理钩子
                 hooks::setup_exit_cleanup(app.handle())?;
 
@@ -76,12 +50,21 @@ pub fn run() {
                 let app_handle = app.handle().clone();
                 app.handle().plugin(
                     tauri_plugin_global_shortcut::Builder::new().with_handler(move |_app, shortcut, event| {
+                        println!("Shortcut triggered: {:?}", shortcut);
                         if shortcut == &capslock_shortcut {
                             match event.state() {
                                 ShortcutState::Pressed => {
-                                    let _ = ahk::open_command_window(app_handle.clone());
+                                    println!("CapsLock Pressed! Opening command window...");
+                                    let handle = app_handle.clone();
+                                    tauri::async_runtime::spawn(async move {
+                                        match ahk::open_command_window(handle).await {
+                                            Ok(msg) => println!("Command window: {}", msg),
+                                            Err(e) => eprintln!("Failed to open command window: {}", e),
+                                        }
+                                    });
                                 }
                                 ShortcutState::Released => {
+                                    println!("CapsLock Released!");
                                 }
                             }
                         }
@@ -89,7 +72,10 @@ pub fn run() {
                     .build(),
                 )?;
 
-                app.global_shortcut().register(capslock_shortcut)?;
+                match app.global_shortcut().register(capslock_shortcut) {
+                    Ok(_) => println!("CapsLock shortcut registered successfully"),
+                    Err(e) => eprintln!("Failed to register CapsLock shortcut: {}", e),
+                };
             }
             Ok(())
         })
