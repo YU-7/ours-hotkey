@@ -31,6 +31,26 @@ pub fn create_system_tray<R: tauri::Runtime>(
                     let _ = win.set_focus();
                 }
             } else if event.id.as_ref() == "quit_app" {
+                // 退出应用前关闭所有AHK脚本
+                println!("应用退出请求，关闭所有AHK脚本...");
+
+                // 停止所有AHK脚本
+                if let Some(manager) = app.try_state::<crate::ahk::AhkProcessManager>() {
+                    let mut processes = manager.0.lock().unwrap();
+                    let count = processes.len();
+
+                    let mut stopped_count = 0;
+                    for (_script_name, mut child) in processes.drain() {
+                        if child.kill().is_ok() {
+                            stopped_count += 1;
+                        }
+                    }
+
+                    println!("已停止 {} 个AHK脚本中的 {} 个", count, stopped_count);
+                } else {
+                    println!("无法获取AHK进程管理器");
+                }
+
                 app.exit(0);
             }
         })
