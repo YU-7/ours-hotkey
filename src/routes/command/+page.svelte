@@ -1,7 +1,67 @@
 <script lang="ts">
-  import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-  import { invoke } from '@tauri-apps/api/core';
-  import { onMount } from 'svelte';
+  import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { invoke } from "@tauri-apps/api/core";
+  import { onMount } from "svelte";
+
+  let commandInput = $state("");
+  let commands = $state<
+    Record<string, { isEnabled: boolean; key: string; AHKcommand: string }>
+  >({});
+
+  interface CommandConfig {
+    isEnabled: boolean;
+    key: string;
+    AHKcommand: string;
+  }
+
+  interface CommandData {
+    [key: string]: CommandConfig;
+  }
+
+  async function loadCommands() {
+    try {
+      const data = await invoke<CommandData>("get_command_config");
+      commands = data;
+    } catch (err) {
+      console.error("加载命令配置失败:", err);
+    }
+  }
+
+  async function checkCommand(input: string): Promise<void> {
+    const inputLower = input.toLowerCase().trim();
+
+    for (const [commandName, commandData] of Object.entries(commands)) {
+      if (commandData.isEnabled) {
+        const commandKey = commandData.key.toLowerCase();
+
+        // 检查输入是否匹配命令的 key
+        if (
+          inputLower === commandKey ||
+          inputLower === commandName.toLowerCase()
+        ) {
+          console.log("✅ 启用命令:", {
+            name: commandName,
+            key: commandData.key,
+            ahkCommand: commandData.AHKcommand,
+            isEnabled: commandData.isEnabled,
+          });
+          // 匹配成功后关闭页面
+          const webview = getCurrentWebviewWindow();
+          await webview.close();
+          return;
+        }
+      }
+    }
+  }
+
+  async function handleBlur() {
+    // 输入框失去焦点时关闭页面
+    const webview = getCurrentWebviewWindow();
+    await webview.close();
+  }
+  import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { invoke } from "@tauri-apps/api/core";
+  import { onMount } from "svelte";
 
   let commandInput = $state("");
   let commands = $state<
@@ -62,7 +122,7 @@
   }
 
   async function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       const webview = getCurrentWebviewWindow();
       await webview.close();
     } else {
@@ -94,7 +154,9 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center">
+<div
+  class="w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center"
+>
   <!-- svelte-ignore a11y_autofocus -->
   <input
     bind:value={commandInput}
@@ -103,6 +165,7 @@
     placeholder="输入命令..."
     class="px-4 py-2 bg-white/90 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg text-center min-w-80"
     autofocus
+    onblur={handleBlur}
   />
 </div>
 
