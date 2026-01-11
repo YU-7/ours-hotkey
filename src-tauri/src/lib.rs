@@ -5,6 +5,7 @@ use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 
 mod ahk;
+mod command;
 mod hooks;
 mod shortcuts;
 mod tray;
@@ -73,7 +74,9 @@ pub fn run() {
             ahk::test_ahk_paths,
             ahk::open_command_window,
             ahk::get_command_config,
-            ahk::update_command_config
+            ahk::update_command_config,
+            command::run_command,
+            command::run_ahk_command
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

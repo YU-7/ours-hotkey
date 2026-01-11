@@ -2,7 +2,7 @@
     "OpenTerminal": {
         "isEnabled": true,
         "key": "CMD",
-        "AHKcommand": "CMD"
+        "AHKcommand": "cmd"
     },
     "OpenFileExplorer": {
         "isEnabled": true,
@@ -15,19 +15,19 @@
         "AHKcommand": "calc"
     },
     "OpenNotepad": {
-        "isEnabled": true,      
+        "isEnabled": false,
         "key": "N",
         "AHKcommand": "notepad"
     },
     "OpenChrome": {
-        "isEnabled": true,      
+        "isEnabled": false,
         "key": "C",
         "AHKcommand": "chrome"
     },
     "OpenDownloads": {
-        "isEnabled": true,      
+        "isEnabled": true,
         "key": "D",
-        "AHKcommand": "explorer shell:downloads"
+        "AHKcommand": "downloads"
     },
     "OpenTaskManger": {
         "isEnabled": true,          
@@ -35,23 +35,23 @@
         "AHKcommand": "taskmgr"
     },
     "OpenBluetooth": {
-        "isEnabled": true,          
+        "isEnabled": true,
         "key": "S",
-        "AHKcommand": "ms-settings:bluetooth"
+        "AHKcommand": "bluetooth"
     },
     "OpenWiFi": {
-        "isEnabled": true,          
-        "key": "N",
-        "AHKcommand": "ms-settings:network"
+        "isEnabled": true,
+        "key": "W",
+        "AHKcommand": "wifi"
     },
     "OpenSound": {
-        "isEnabled": true,          
+        "isEnabled": true,
         "key": "V",
-        "AHKcommand": "ms-settings:sound"
+        "AHKcommand": "volume"
     },
     "OpenRecycleBin": {
-        "isEnabled": true,          
+        "isEnabled": true,
         "key": "R",
-        "AHKcommand": "explorer shell:recyclebin"
+        "AHKcommand": "recycle"
     }
 }
