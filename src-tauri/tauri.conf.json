@@ -20,6 +20,10 @@
         "minHeight": 600
       }
     ],
+    "trayIcon": {
+      "iconPath": "icons/128x128.png",
+      "iconAsTemplate": false
+    },
     "security": {
       "csp": null
     }
@@ -34,6 +38,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": ["../our-key-config/*", "../AutoHotkey/*", "../AHK-script/**/*"]
+    "resources": ["../our-key-config/*", "../AutoHotkey/*", "../AHK-script/**/*", "icons/**/*"]
   }
 }

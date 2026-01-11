@@ -38,8 +38,9 @@ pub fn setup_exit_cleanup(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
 
                 println!("已停止 {} 个AHK脚本中的 {} 个", count, stopped_count);
 
-                // 不阻止关闭，让Tauri自然处理
-                // 不手动调用 close() 避免触发新的 CloseRequested 事件
+                // 隐藏窗口而不是关闭程序
+                println!("隐藏主窗口，程序仍在后台运行");
+                let _ = main_window.hide();
             }
             _ => {}
         }
