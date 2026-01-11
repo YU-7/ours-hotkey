@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 
 mod ahk;
 mod hooks;
@@ -24,6 +24,18 @@ pub fn run() {
         .setup(|app| {
             #[cfg(desktop)]
             {
+                // 监听主窗口的关闭事件，改为隐藏窗口而不是退出
+                if let Some(main_window) = app.get_webview_window("main") {
+                    let window = main_window.clone();
+                    main_window.on_window_event(move |event| {
+                        if let WindowEvent::CloseRequested { api, .. } = event {
+                            // 阻止默认关闭行为，改为隐藏窗口
+                            api.prevent_close();
+                            let _ = window.hide();
+                        }
+                    });
+                }
+
                 use tauri_plugin_autostart::MacosLauncher;
                 #[cfg(target_os = "macos")]
                 {
