@@ -21,13 +21,8 @@ pub fn create_system_tray<R: tauri::Runtime>(
     app: &tauri::AppHandle<R>,
     tray_menu: &tauri::menu::Menu<R>,
 ) -> Result<tauri::tray::TrayIcon<R>, tauri::Error> {
-    // 加载托盘图标 - 使用 Tauri 2.0 的 Image::new 方法
-    // 32x32.png 是 32x32 像素的图标
-    let icon_bytes = include_bytes!("../icons/32x32.png");
-    let icon = Image::new(icon_bytes, 32, 32);
-
     let tray = TrayIconBuilder::new()
-        .icon(icon)
+        .icon(app.default_window_icon().unwrap().clone())
         .menu(tray_menu)
         .tooltip("ours-hotkey")
         .on_menu_event(move |app, event| {

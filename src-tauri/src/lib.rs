@@ -45,10 +45,8 @@ pub fn run() {
                 hooks::auto_start_scripts(&app.handle())?;
                 // 注册应用退出时的清理钩子
                 hooks::setup_exit_cleanup(app.handle())?;
-
                 // 注册全局快捷键
                 shortcuts::register_global_shortcuts(app)?;
-
                 // 设置系统托盘
                 tray::setup_tray(app.handle())?;
             }
