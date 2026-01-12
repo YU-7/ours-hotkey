@@ -46,51 +46,53 @@
   });
 </script>
 
-<div class="space-y-4">
+<div class="flex flex-col h-full min-h-0">
   <!-- Header -->
-  <div class="flex items-center justify-between">
-    <div>
-      <h2 class="text-lg font-bold text-gray-900">快捷命令配置</h2>
-      <p class="text-sm text-gray-500">管理自定义命令和快捷方式</p>
+  <div class="flex-shrink-0">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">快捷命令配置</h2>
+        <p class="text-sm text-gray-500">管理自定义命令和快捷方式</p>
+      </div>
+      <button class="px-3 py-1.5 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors cursor-pointer flex items-center gap-1.5">
+        <Plus class="w-4 h-4" />
+        <span>添加命令</span>
+      </button>
     </div>
-    <button class="px-3 py-1.5 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors cursor-pointer flex items-center gap-1.5">
-      <Plus class="w-4 h-4" />
-      <span>添加命令</span>
-    </button>
   </div>
 
-  <!-- Content -->
-  {#if loading}
-    <div class="flex items-center justify-center py-12">
-      <div class="text-center">
-        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-          <Loader2 class="w-5 h-5 text-green-600 animate-spin" />
-        </div>
-        <p class="text-sm text-gray-500">正在加载命令配置...</p>
-      </div>
-    </div>
-  {:else if error}
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <AlertCircle class="w-4 h-4 text-red-600" />
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-medium text-red-800">加载失败</h3>
-          <p class="text-xs text-red-700 mt-1">{error}</p>
-          <button
-            onclick={loadCommands}
-            class="mt-2 px-3 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors cursor-pointer"
-          >
-            重试
-          </button>
+  <!-- Content with scroll -->
+  <div class="flex-1 overflow-y-auto pr-2 -mr-2 mt-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+    {#if loading}
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Loader2 class="w-5 h-5 text-green-600 animate-spin" />
+          </div>
+          <p class="text-sm text-gray-500">正在加载命令配置...</p>
         </div>
       </div>
-    </div>
-  {:else}
-    <div class="grid gap-3">
+    {:else if error}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <AlertCircle class="w-4 h-4 text-red-600" />
+          </div>
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-red-800">加载失败</h3>
+            <p class="text-xs text-red-700 mt-1">{error}</p>
+            <button
+              onclick={loadCommands}
+              class="mt-2 px-3 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors cursor-pointer"
+            >
+              重试
+            </button>
+          </div>
+        </div>
+      </div>
+    {:else}
       {#each Object.entries(commands) as [name, config] (name)}
-        <div class="bg-white border border-gray-200 rounded-lg p-4 transition-colors hover:bg-gray-50">
+        <div class="bg-white border border-gray-200 rounded-lg p-4 transition-colors hover:bg-gray-50 flex-shrink-0">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-2">
@@ -141,6 +143,32 @@
           </div>
         </div>
       {/each}
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
+
+<style>
+  /* 自定义滚动条样式 */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+</style>

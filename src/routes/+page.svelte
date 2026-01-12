@@ -26,7 +26,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-gray-100">
+<div class="h-screen bg-gray-100 overflow-hidden">
   <!-- Header -->
   <header class="bg-white border-b border-gray-200 px-8 py-4">
     <div class="flex items-center justify-between">
@@ -49,19 +49,19 @@
 
   <div class="flex">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-      <nav class="p-4">
+    <aside class="w-32 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
+      <nav class="p-2">
         <div class="space-y-1">
           {#each menuItems as item (item.id)}
             {@const Icon = item.icon}
             <button
               onclick={() => handleMenuClick(item.id)}
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer {currentView === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}"
+              class="w-full flex flex-col items-center gap-1.5 px-2 py-3 rounded-lg transition-colors cursor-pointer {currentView === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}"
             >
               <div class="w-8 h-8 {item.color} rounded-lg flex items-center justify-center">
                 <Icon class="w-4 h-4 text-white" />
               </div>
-              <span class="font-medium text-sm">{item.label}</span>
+              <span class="text-xs font-medium">{item.label}</span>
             </button>
           {/each}
         </div>
@@ -69,7 +69,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-6 overflow-hidden flex flex-col">
       {#if currentView === "settings"}
         <SettingsPage />
       {:else if currentView === "hotkeys"}
