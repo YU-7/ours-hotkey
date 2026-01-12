@@ -3,52 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use tauri::Manager;
 
-/// 设置应用退出时的清理工作
-pub fn setup_exit_cleanup(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    // 获取应用主窗口
-    let main_window = app
-        .get_webview_window("main")
-        .ok_or_else(|| "Main window not found".to_string())?;
-
-    let app_handle = app.clone();
-    let cleanup_done = std::sync::atomic::AtomicBool::new(false);
-
-    // 监听窗口关闭事件
-    main_window.clone().on_window_event(move |event| {
-        match event {
-            tauri::WindowEvent::CloseRequested { .. } => {
-                // 使用原子标志确保清理只执行一次
-                if cleanup_done.swap(true, std::sync::atomic::Ordering::SeqCst) {
-                    return; // 已经执行过清理，直接返回
-                }
-
-                println!("应用退出请求，关闭所有AHK脚本...");
-
-                // 停止所有AHK脚本
-                let manager = app_handle.state::<ahk::AhkProcessManager>();
-                let mut processes = manager.0.lock().unwrap();
-                let count = processes.len();
-
-                let mut stopped_count = 0;
-                for (_script_name, mut child) in processes.drain() {
-                    if child.kill().is_ok() {
-                        stopped_count += 1;
-                    }
-                }
-
-                println!("已停止 {} 个AHK脚本中的 {} 个", count, stopped_count);
-
-                // 隐藏窗口而不是关闭程序
-                println!("隐藏主窗口，程序仍在后台运行");
-                let _ = main_window.hide();
-            }
-            _ => {}
-        }
-    });
-
-    Ok(())
-}
-
 /// 读取配置文件并自动启动相应的 AHK 脚本
 pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     // 获取资源目录路径
@@ -87,7 +41,7 @@ pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
     // 根据配置启动脚本
     if config.global_hotkey {
         let manager = app.state::<ahk::AhkProcessManager>();
-        match ahk::start_ahk_script_internal(app, "global-hotkey", &manager) {
+        match ahk::start_ahk_script_internal(app, "global-hotkey", manager.inner()) {
             Ok(msg) => println!("自动启动全局热键脚本: {}", msg),
             Err(e) => println!("自动启动全局热键脚本失败: {}", e),
         }
@@ -95,7 +49,7 @@ pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
 
     if config.vim_mode {
         let manager = app.state::<ahk::AhkProcessManager>();
-        match ahk::start_ahk_script_internal(app, "vim-mode", &manager) {
+        match ahk::start_ahk_script_internal(app, "vim-mode", manager.inner()) {
             Ok(msg) => println!("自动启动 Vim 模式脚本: {}", msg),
             Err(e) => println!("自动启动 Vim 模式脚本失败: {}", e),
         }

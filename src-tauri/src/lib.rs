@@ -65,7 +65,7 @@ pub fn run() {
             }
             Ok(())
         })
-        .manage(ahk::AhkProcessManager(Mutex::new(HashMap::new())))
+        .manage(ahk::AhkProcessManager::new())
         .invoke_handler(tauri::generate_handler![
             ahk::run_ahk_script,
             ahk::stop_ahk_script,

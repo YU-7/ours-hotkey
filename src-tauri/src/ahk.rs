@@ -6,7 +6,50 @@ use tauri::{AppHandle, Manager, State, WebviewUrl};
 use serde::{Deserialize, Serialize};
 
 // 用于管理运行中的 AHK 进程
-pub struct AhkProcessManager(pub Mutex<HashMap<String, Child>>);
+pub struct AhkProcessManager(Mutex<HashMap<String, Child>>);
+
+impl AhkProcessManager {
+    /// 创建新的 AhkProcessManager 实例
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        Self(Mutex::new(HashMap::new()))
+    }
+
+    /// 获取内部 Mutex 的锁
+    pub fn lock(&self) -> std::sync::MutexGuard<'_, HashMap<String, Child>> {
+        self.0.lock().unwrap()
+    }
+
+    /// 检查脚本是否正在运行
+    pub fn contains(&self, script_name: &str) -> bool {
+        self.0.lock().unwrap().contains_key(script_name)
+    }
+
+    /// 插入进程
+    pub fn insert(&self, script_name: String, child: Child) {
+        self.0.lock().unwrap().insert(script_name, child);
+    }
+
+    /// 移除进程
+    pub fn remove(&mut self, script_name: &str) -> Option<Child> {
+        self.0.lock().unwrap().remove(script_name)
+    }
+
+    /// 获取进程数量
+    pub fn len(&self) -> usize {
+        self.0.lock().unwrap().len()
+    }
+
+    /// 检查是否为空
+    pub fn is_empty(&self) -> bool {
+        self.0.lock().unwrap().is_empty()
+    }
+
+    /// 清空所有进程
+    pub fn drain(&mut self) -> Vec<(String, Child)> {
+        self.0.lock().unwrap().drain().collect()
+    }
+}
 
 /// 内部函数：启动 AHK 脚本（不作为 tauri command 导出）
 pub fn start_ahk_script_internal(
@@ -25,7 +68,7 @@ pub fn start_ahk_script_internal(
     }
 
     // 检查脚本是否已经在运行并启动
-    let mut processes = manager.0.lock().unwrap();
+    let mut processes = manager.lock();
     if processes.contains_key(script_name) {
         return Err(format!("AHK script '{}' is already running", script_name));
     }
@@ -60,7 +103,7 @@ pub fn stop_ahk_script(
     script_name: String,
     manager: State<'_, AhkProcessManager>,
 ) -> Result<String, String> {
-    let mut processes = manager.0.lock().unwrap();
+    let mut processes = manager.inner().lock();
 
     if let Some(mut child) = processes.remove(&script_name) {
         match child.kill() {
@@ -77,7 +120,7 @@ pub fn stop_ahk_script(
 
 #[tauri::command]
 pub fn stop_all_ahk_scripts(manager: State<'_, AhkProcessManager>) -> Result<String, String> {
-    let mut processes = manager.0.lock().unwrap();
+    let mut processes = manager.inner().lock();
     let count = processes.len();
 
     let mut stopped_count = 0;
@@ -95,7 +138,7 @@ pub fn stop_all_ahk_scripts(manager: State<'_, AhkProcessManager>) -> Result<Str
 
 #[tauri::command]
 pub fn list_running_scripts(manager: State<'_, AhkProcessManager>) -> Result<String, String> {
-    let processes = manager.0.lock().unwrap();
+    let processes = manager.inner().lock();
     if processes.is_empty() {
         return Ok("No AHK scripts are currently running".to_string());
     }
@@ -186,7 +229,7 @@ pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
     }
 
     // 创建新的 command 窗口
-    let _window = tauri::webview::WebviewWindowBuilder::new(&app, "command", WebviewUrl::App("/command".into()))
+    let window = tauri::webview::WebviewWindowBuilder::new(&app, "command", WebviewUrl::App("/command".into()))
         .title("快捷命令")
         .inner_size(400.0, 80.0)
         .center()
@@ -197,6 +240,9 @@ pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
         .resizable(false) // 不可调整大小
         .build()
         .map_err(|e| format!("Failed to create command window: {}", e))?;
+
+    // 确保窗口获得焦点
+    window.set_focus().map_err(|e| format!("Failed to focus command window: {}", e))?;
 
     Ok("Command window opened".to_string())
 }

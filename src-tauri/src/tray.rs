@@ -36,7 +36,7 @@ pub fn create_system_tray<R: tauri::Runtime>(
 
                 // 停止所有AHK脚本
                 if let Some(manager) = app.try_state::<crate::ahk::AhkProcessManager>() {
-                    let mut processes = manager.0.lock().unwrap();
+                    let mut processes = manager.inner().lock();
                     let count = processes.len();
 
                     let mut stopped_count = 0;
