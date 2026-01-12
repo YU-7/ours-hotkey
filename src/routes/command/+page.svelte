@@ -131,19 +131,48 @@
 
 <svelte:window on:keydown={handleKeydown} on:blur={handleWindowBlur} />
 
-<div
-  class="w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center"
->
-  <!-- svelte-ignore a11y_autofocus -->
-  <input
-    bind:value={commandInput}
-    bind:this={inputElement}
-    type="text"
-    placeholder="输入命令..."
-    class="px-4 py-2 bg-white/90 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg text-center min-w-80"
-    autofocus
-    onblur={handleBlur}
-  />
+<div class="w-screen h-screen bg-black/60 backdrop-blur-sm flex items-center justify-center p-8">
+  <div class="w-full max-w-md">
+    <!-- Search Box -->
+    <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div class="px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-5 h-5 text-gray-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <!-- svelte-ignore a11y_autofocus -->
+          <input
+            bind:value={commandInput}
+            bind:this={inputElement}
+            type="text"
+            placeholder="输入命令或搜索..."
+            class="flex-1 text-lg text-gray-900 placeholder-gray-500 focus:outline-none bg-transparent"
+            autofocus
+            onblur={handleBlur}
+          />
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span>输入命令并按回车执行</span>
+          <span>ESC 关闭</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Commands Hint -->
+    {#if Object.keys(commands).length > 0}
+      <div class="mt-4 text-center">
+        <p class="text-white/80 text-sm">
+          支持 {Object.values(commands).filter(cmd => cmd.isEnabled).length} 个命令
+        </p>
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>

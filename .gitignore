@@ -9,3 +9,14 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .trae/*
+.claude/*
+.codex/*
+.gemini/*
+.roo/*
+.shared/*
+.agent/*
+.github/*
+.agent/*
+.cursor/*
+.kiro/*
+.windsurf/*

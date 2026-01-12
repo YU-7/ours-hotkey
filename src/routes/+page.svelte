@@ -1,87 +1,92 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {
-    ArrowLeftRightIcon,
-    BikeIcon,
-    BookIcon,
-    HouseIcon,
-    TreePalmIcon,
+    Keyboard,
+    Zap,
+    Settings,
+    Terminal,
+    Plus,
+    RefreshCw,
   } from "@lucide/svelte";
-  import { Navigation } from "@skeletonlabs/skeleton-svelte";
-  import Settings from "$lib/components/Settings.svelte";
+  import SettingsPage from "$lib/components/Settings.svelte";
   import HotkeysConfig from "$lib/components/HotkeysConfig.svelte";
   import CommandConfig from "$lib/components/CommandConfig.svelte";
   import type { ViewType } from "../interface/types";
 
-  const links = [
-    { label: "系统级热键", id: "hotkeys" as ViewType, icon: HouseIcon },
-    { label: "快捷命令", id: "commands" as ViewType, icon: BookIcon },
-    { label: "Vim模式", id: "vim" as ViewType, icon: BikeIcon },
-    { label: "软件设置", id: "settings" as ViewType, icon: TreePalmIcon },
+  const menuItems = [
+    { label: "热键配置", id: "hotkeys" as ViewType, icon: Keyboard, color: "bg-blue-500" },
+    { label: "命令配置", id: "commands" as ViewType, icon: Terminal, color: "bg-green-500" },
+    { label: "Vim模式", id: "vim" as ViewType, icon: Zap, color: "bg-purple-500" },
+    { label: "设置", id: "settings" as ViewType, icon: Settings, color: "bg-gray-500" },
   ];
 
-  const buttonClasses = "btn hover:preset-tonal";
-  let anchorRail = `${buttonClasses} aspect-square w-full max-w-[84px] flex flex-col items-center gap-0.5`;
-  let anchorSidebar = `${buttonClasses} justify-start px-2 w-full`;
-
-  let layoutRail = $state(true);
   let currentView = $state<ViewType>("hotkeys");
 
-  function toggleLayout() {
-    layoutRail = !layoutRail;
-  }
-
-  function handleNavClick(viewId: ViewType) {
+  function handleMenuClick(viewId: ViewType) {
     currentView = viewId;
   }
 </script>
 
-<div
-  class="w-full h-screen grid grid-cols-[auto_1fr] items-stretch border border-surface-200-800 overflow-hidden"
->
-  <!-- --- -->
-  <Navigation
-    layout={layoutRail ? "rail" : "sidebar"}
-    class={layoutRail
-      ? "h-full overflow-hidden min-h-0 max-h-full"
-      : "grid grid-rows-[1fr_auto] gap-4 h-full overflow-hidden min-h-0 max-h-full"}
-    style="max-height: 100%; overflow: hidden;"
-  >
-    <Navigation.Content class="h-full overflow-hidden flex flex-col min-h-0">
-      <Navigation.Header>
-        <Navigation.Trigger onclick={toggleLayout}>
-          <ArrowLeftRightIcon class={layoutRail ? "size-5" : "size-4"} />
-          {#if !layoutRail}<span>Resize</span>{/if}
-        </Navigation.Trigger>
-      </Navigation.Header>
-      <Navigation.Menu class="flex-1 overflow-y-auto min-h-0">
-        {#each links as link (link)}
-          {@const Icon = link.icon}
-          <Navigation.TriggerAnchor
-            onclick={() => handleNavClick(link.id)}
-            class={currentView === link.id ? "bg-surface-300-700" : ""}
-          >
-            <Icon class={layoutRail ? "size-5" : "size-4"} />
-            <Navigation.TriggerText>{link.label}</Navigation.TriggerText>
-          </Navigation.TriggerAnchor>
-        {/each}
-      </Navigation.Menu>
-    </Navigation.Content>
-  </Navigation>
-  <!-- --- -->
-  <div class="overflow-hidden min-h-0 overflow-y-auto">
-    {#if currentView === "settings"}
-      <Settings />
-    {:else if currentView === "hotkeys"}
-      <HotkeysConfig />
-    {:else if currentView === "commands"}
-      <CommandConfig />
-    {:else if currentView === "vim"}
-      <div class="flex justify-center items-center h-full p-6">
-        <div class="text-center">
-          <h2 class="text-xl font-semibold mb-2">Vim模式</h2>
-          <p class="text-surface-600-300">功能开发中...</p>
+<div class="min-h-screen bg-gray-100">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-8 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+          <Keyboard class="w-5 h-5 text-white" />
         </div>
+        <h1 class="text-xl font-bold text-gray-900">Ours Hotkey</h1>
       </div>
-    {/if}
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors cursor-pointer">
+          测试热键
+        </button>
+        <button class="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors cursor-pointer">
+          重载配置
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
+      <nav class="p-4">
+        <div class="space-y-1">
+          {#each menuItems as item (item.id)}
+            {@const Icon = item.icon}
+            <button
+              onclick={() => handleMenuClick(item.id)}
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer {currentView === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}"
+            >
+              <div class="w-8 h-8 {item.color} rounded-lg flex items-center justify-center">
+                <Icon class="w-4 h-4 text-white" />
+              </div>
+              <span class="font-medium text-sm">{item.label}</span>
+            </button>
+          {/each}
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      {#if currentView === "settings"}
+        <SettingsPage />
+      {:else if currentView === "hotkeys"}
+        <HotkeysConfig />
+      {:else if currentView === "commands"}
+        <CommandConfig />
+      {:else if currentView === "vim"}
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Zap class="w-8 h-8 text-purple-600" />
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Vim模式</h2>
+            <p class="text-gray-500 text-sm max-w-sm">Vim风格的键盘导航模式正在开发中...</p>
+          </div>
+        </div>
+      {/if}
+    </main>
   </div>
 </div>

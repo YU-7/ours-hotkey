@@ -4,6 +4,7 @@
   import { getAppDataDir, ensureAppDataDir } from "$lib/file-utils";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { invoke } from "@tauri-apps/api/core";
+  import { Power, Folder, Terminal, Loader2, AlertCircle, ExternalLink } from "@lucide/svelte";
 
   let autostartEnabled = $state(false);
   let loading = $state(false);
@@ -11,14 +12,12 @@
   let errorMessage = $state<string>("");
 
   onMount(async () => {
-    // 加载当前状态
     loading = true;
     errorMessage = "";
     try {
       autostartEnabled = await checkAutostartStatus();
       appDataPath = await getAppDataDir();
 
-      // 确保应用数据目录存在
       if (appDataPath) {
         await ensureAppDataDir();
         console.log("应用数据目录已准备:", appDataPath);
@@ -39,7 +38,6 @@
       autostartEnabled = await toggleAutostart();
     } catch (error) {
       console.error("切换自动启动状态失败:", error);
-      // 如果失败，恢复之前的状态
       autostartEnabled = await checkAutostartStatus();
     } finally {
       loading = false;
@@ -50,16 +48,11 @@
     if (!appDataPath) return;
 
     try {
-      // 确保目录存在
       await ensureAppDataDir();
-
-      // 在文件管理器中显示文件夹
-      // revealItemInDir 用于在文件管理器中显示指定的文件或文件夹
       await revealItemInDir(appDataPath);
     } catch (error) {
       console.error("打开文件夹失败:", error);
       errorMessage = `打开文件夹失败: ${error instanceof Error ? error.message : String(error)}`;
-      // 3秒后清除错误消息
       setTimeout(() => {
         errorMessage = "";
       }, 3000);
@@ -73,7 +66,6 @@
     } catch (error) {
       console.error("打开命令窗口失败:", error);
       errorMessage = `打开命令窗口失败: ${error instanceof Error ? error.message : String(error)}`;
-      // 3秒后清除错误消息
       setTimeout(() => {
         errorMessage = "";
       }, 3000);
@@ -81,73 +73,95 @@
   }
 </script>
 
-<div class="p-6 space-y-6">
-  <h1 class="text-2xl font-bold">软件设置</h1>
+<div class="space-y-4">
+  <div>
+    <h2 class="text-lg font-bold text-gray-900">软件设置</h2>
+    <p class="text-sm text-gray-500">管理应用配置和首选项</p>
+  </div>
 
-  <div class="space-y-4">
+  <div class="space-y-3">
     <!-- 开机自动启动设置 -->
-    <div class="card p-4">
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
       <div class="flex items-center justify-between">
-        <div class="flex flex-col gap-1">
-          <h2 class="text-lg font-semibold">开机自动启动</h2>
-          <p class="text-sm text-surface-600-300">
-            启用后，应用将在系统启动时自动运行
-          </p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+            <Power class="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">开机自动启动</h3>
+            <p class="text-xs text-gray-500">启用后，应用将在系统启动时自动运行</p>
+          </div>
         </div>
-        <label class="switch">
+        <label class="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
+            class="sr-only peer"
             checked={autostartEnabled}
             disabled={loading}
             onchange={handleAutostartToggle}
           />
-          <span class="slider"></span>
+          <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500 {loading ? 'opacity-50 cursor-not-allowed' : ''}"></div>
         </label>
       </div>
     </div>
 
     <!-- 应用数据目录 -->
-    <div class="card p-4">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-lg font-semibold">应用数据目录</h2>
-        <p class="text-sm text-surface-600-300">应用的配置和数据文件存储位置</p>
-        {#if errorMessage}
-          <div class="mt-2 p-2 bg-error-500/20 text-error-500 text-xs rounded">
-            {errorMessage}
-          </div>
-        {/if}
-        {#if appDataPath}
-          <div class="flex flex-col gap-2 mt-2">
-            <div class="flex items-center gap-2">
-              <code
-                class="text-xs bg-surface-200-800 px-2 py-1 rounded flex-1 break-all"
-              >
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Folder class="w-4 h-4 text-gray-600" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-semibold text-gray-900">应用数据目录</h3>
+          <p class="text-xs text-gray-500 mt-0.5">应用的配置和数据文件存储位置</p>
+          
+          {#if errorMessage}
+            <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center gap-1.5">
+              <AlertCircle class="w-3.5 h-3.5" />
+              {errorMessage}
+            </div>
+          {/if}
+          
+          {#if appDataPath}
+            <div class="flex items-center gap-2 mt-2">
+              <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1.5 rounded flex-1 break-all font-mono">
                 {appDataPath}
               </code>
               <button
-                class="btn btn-sm"
+                class="px-2.5 py-1.5 text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors cursor-pointer flex items-center gap-1"
                 onclick={openAppDataFolder}
                 disabled={loading || !appDataPath}
               >
-                打开文件夹
+                <ExternalLink class="w-3.5 h-3.5" />
+                打开
               </button>
             </div>
-          </div>
-        {:else if loading}
-          <p class="text-sm text-surface-500-400">加载中...</p>
-        {:else}
-          <p class="text-sm text-surface-500-400">无法获取应用数据目录路径</p>
-        {/if}
+          {:else if loading}
+            <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
+              <Loader2 class="w-3.5 h-3.5 animate-spin" />
+              加载中...
+            </div>
+          {:else}
+            <p class="text-xs text-gray-500 mt-2">无法获取应用数据目录路径</p>
+          {/if}
+        </div>
       </div>
     </div>
 
     <!-- 测试命令窗口 -->
-    <div class="card p-4">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-lg font-semibold">测试功能</h2>
-        <p class="text-sm text-surface-600-300">测试无边框命令窗口功能</p>
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Terminal class="w-4 h-4 text-purple-600" />
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">测试功能</h3>
+            <p class="text-xs text-gray-500">测试无边框命令窗口功能</p>
+          </div>
+        </div>
         <button
-          class="btn btn-sm w-fit"
+          class="px-3 py-1.5 text-xs text-white bg-purple-500 hover:bg-purple-600 rounded transition-colors cursor-pointer"
           onclick={openCommandWindow}
           disabled={loading}
         >
@@ -157,55 +171,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-  }
-
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--color-surface-500);
-    transition: 0.3s;
-    border-radius: 24px;
-  }
-
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-  }
-
-  input:checked + .slider {
-    background-color: var(--color-primary-500);
-  }
-
-  input:checked + .slider:before {
-    transform: translateX(26px);
-  }
-
-  input:disabled + .slider {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-</style>

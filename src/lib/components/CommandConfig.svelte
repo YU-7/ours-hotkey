@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api/core';
   import { onMount } from 'svelte';
+  import { Terminal, Play, Square, Settings, Plus, AlertCircle, Loader2 } from '@lucide/svelte';
 
   interface CommandConfig {
     isEnabled: boolean;
@@ -45,46 +46,101 @@
   });
 </script>
 
-<div class="p-6">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">快捷命令配置</h1>
-
-    {#if loading}
-      <div class="flex justify-center items-center h-64">
-        <div class="text-surface-600-300">加载中...</div>
-      </div>
-    {:else if error}
-      <div class="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg">
-        <p>加载失败: {error}</p>
-        <button onclick={loadCommands} class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-          重试
-        </button>
-      </div>
-    {:else}
-      <div class="space-y-4">
-        {#each Object.entries(commands) as [name, config] (name)}
-          <div class="bg-surface-100-900 border border-surface-200-800 rounded-lg p-4 flex items-center justify-between hover:bg-surface-200-800 transition-colors">
-            <div class="flex-1">
-              <h3 class="font-semibold text-lg">{name}</h3>
-              <p class="text-sm text-surface-600-300 mt-1">
-                快捷键: <span class="font-mono bg-surface-200-800 px-2 py-1 rounded">{config.key}</span>
-              </p>
-              <p class="text-sm text-surface-600-300 mt-1">
-                AHK 命令: <span class="font-mono text-xs bg-surface-200-800 px-2 py-1 rounded">{config.AHKcommand}</span>
-              </p>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                class="sr-only peer"
-                checked={config.isEnabled}
-                onchange={(e) => toggleCommand(name, (e.target as HTMLInputElement).checked)}
-              />
-              <div class="w-11 h-6 bg-surface-300-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-        {/each}
-      </div>
-    {/if}
+<div class="space-y-4">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-lg font-bold text-gray-900">快捷命令配置</h2>
+      <p class="text-sm text-gray-500">管理自定义命令和快捷方式</p>
+    </div>
+    <button class="px-3 py-1.5 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors cursor-pointer flex items-center gap-1.5">
+      <Plus class="w-4 h-4" />
+      <span>添加命令</span>
+    </button>
   </div>
+
+  <!-- Content -->
+  {#if loading}
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+          <Loader2 class="w-5 h-5 text-green-600 animate-spin" />
+        </div>
+        <p class="text-sm text-gray-500">正在加载命令配置...</p>
+      </div>
+    </div>
+  {:else if error}
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <AlertCircle class="w-4 h-4 text-red-600" />
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">加载失败</h3>
+          <p class="text-xs text-red-700 mt-1">{error}</p>
+          <button
+            onclick={loadCommands}
+            class="mt-2 px-3 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors cursor-pointer"
+          >
+            重试
+          </button>
+        </div>
+      </div>
+    </div>
+  {:else}
+    <div class="grid gap-3">
+      {#each Object.entries(commands) as [name, config] (name)}
+        <div class="bg-white border border-gray-200 rounded-lg p-4 transition-colors hover:bg-gray-50">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Terminal class="w-4 h-4 text-green-600" />
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold text-gray-900 truncate">{name}</h3>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <kbd class="px-1.5 py-0.5 bg-gray-100 text-gray-700 text-xs rounded font-mono">{config.key}</kbd>
+                    <span class="text-xs text-gray-500">AHK命令</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gray-100 rounded p-2 font-mono text-xs text-gray-700 break-all">
+                {config.AHKcommand}
+              </div>
+
+              <div class="flex items-center justify-between mt-3">
+                <div class="flex items-center gap-1.5 text-xs">
+                  {#if config.isEnabled}
+                    <Play class="w-3.5 h-3.5 text-green-600" />
+                    <span class="text-green-600">已启用</span>
+                  {:else}
+                    <Square class="w-3.5 h-3.5 text-gray-400" />
+                    <span class="text-gray-500">已禁用</span>
+                  {/if}
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer">
+                    <Settings class="w-4 h-4" />
+                  </button>
+
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      class="sr-only peer"
+                      checked={config.isEnabled}
+                      onchange={(e) => toggleCommand(name, (e.target as HTMLInputElement).checked)}
+                    />
+                    <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
