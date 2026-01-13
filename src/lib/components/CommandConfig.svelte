@@ -62,7 +62,7 @@
   </div>
 
   <!-- Content with scroll -->
-  <div class="flex-1 overflow-y-auto pr-2 -mr-2 mt-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+  <div class="flex-1 overflow-y-auto pr-2 -mr-2 mt-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent min-h-0">
     {#if loading}
       <div class="flex items-center justify-center py-12">
         <div class="text-center">

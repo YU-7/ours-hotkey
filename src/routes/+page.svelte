@@ -26,9 +26,9 @@
   }
 </script>
 
-<div class="h-screen bg-gray-100 overflow-hidden">
+<div class="h-screen bg-gray-100 overflow-hidden flex flex-col">
   <!-- Header -->
-  <header class="bg-white border-b border-gray-200 px-8 py-4">
+  <header class="bg-white border-b border-gray-200 px-8 py-4 flex-shrink-0">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -47,9 +47,9 @@
     </div>
   </header>
 
-  <div class="flex">
+  <div class="flex flex-1 min-h-0">
     <!-- Sidebar -->
-    <aside class="w-32 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
+    <aside class="w-32 bg-white border-r border-gray-200 flex-shrink-0">
       <nav class="p-2">
         <div class="space-y-1">
           {#each menuItems as item (item.id)}
@@ -69,7 +69,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 overflow-hidden flex flex-col">
+    <main class="flex-1 p-6 overflow-hidden flex flex-col min-h-0">
       {#if currentView === "settings"}
         <SettingsPage />
       {:else if currentView === "hotkeys"}
