@@ -133,9 +133,9 @@
 <svelte:window on:keydown={handleKeydown} on:blur={handleWindowBlur} />
 
 <div class="w-screen h-screen bg-black/50 flex items-center justify-center">
-  <div class="w-full max-w-md mx-4">
+  <div class="w-full max-w-md">
     <!-- Search Box -->
-    <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
+    <div class="w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-lg">
       <div class="px-4 py-3">
         <div class="flex items-center gap-3">
           <Search class="w-4 h-4 text-gray-400 flex-shrink-0" />
