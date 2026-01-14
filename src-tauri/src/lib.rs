@@ -1,7 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
-use std::collections::HashMap;
-use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 
 mod ahk;
@@ -11,7 +9,7 @@ mod shortcuts;
 mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run(silent_start: bool) {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
@@ -22,9 +20,16 @@ pub fn run() {
                 .expect("no main window")
                 .set_focus();
         }))
-        .setup(|app| {
+        .setup(move |app| {
             #[cfg(desktop)]
             {
+                // 静默启动：隐藏主窗口
+                if silent_start {
+                    if let Some(main_window) = app.get_webview_window("main") {
+                        let _ = main_window.hide();
+                    }
+                }
+
                 // 监听主窗口的关闭事件，改为隐藏窗口而不是退出
                 if let Some(main_window) = app.get_webview_window("main") {
                     let window = main_window.clone();
@@ -76,8 +81,27 @@ pub fn run() {
             ahk::get_command_config,
             ahk::update_command_config,
             command::run_command,
-            command::run_ahk_command
+            command::run_ahk_command,
+            get_silent_start_status,
+            set_silent_start
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// 获取静默启动状态
+#[tauri::command]
+fn get_silent_start_status(app: tauri::AppHandle) -> Result<bool, String> {
+    hooks::read_settings(&app)
+        .map(|settings| settings.silent_start)
+        .map_err(|e| e.to_string())
+}
+
+/// 设置静默启动状态
+#[tauri::command]
+fn set_silent_start(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = hooks::read_settings(&app).map_err(|e| e.to_string())?;
+    settings.silent_start = enabled;
+    hooks::save_settings(&app, &settings).map_err(|e| e.to_string())?;
+    Ok(())
 }

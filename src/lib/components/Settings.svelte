@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { checkAutostartStatus, toggleAutostart } from "$lib/auto-start";
+  import { checkAutostartStatus, toggleAutostart, getSilentStartStatus, setSilentStart } from "$lib/auto-start";
   import { getAppDataDir, ensureAppDataDir } from "$lib/file-utils";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { invoke } from "@tauri-apps/api/core";
-  import { Power, Folder, Terminal, Loader2, AlertCircle, ExternalLink } from "@lucide/svelte";
+  import { Power, Folder, Terminal, Loader2, AlertCircle, ExternalLink, Moon } from "@lucide/svelte";
 
   let autostartEnabled = $state(false);
+  let silentStartEnabled = $state(false);
   let loading = $state(false);
   let appDataPath = $state<string>("");
   let errorMessage = $state<string>("");
@@ -16,6 +17,7 @@
     errorMessage = "";
     try {
       autostartEnabled = await checkAutostartStatus();
+      silentStartEnabled = await getSilentStartStatus();
       appDataPath = await getAppDataDir();
 
       if (appDataPath) {
@@ -35,10 +37,30 @@
 
     loading = true;
     try {
-      autostartEnabled = await toggleAutostart();
+      autostartEnabled = await toggleAutostart(silentStartEnabled);
     } catch (error) {
       console.error("切换自动启动状态失败:", error);
       autostartEnabled = await checkAutostartStatus();
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function handleSilentStartToggle() {
+    if (loading) return;
+
+    loading = true;
+    try {
+      silentStartEnabled = !silentStartEnabled;
+      await setSilentStart(silentStartEnabled);
+      // 如果自动启动已启用，重新启用以应用静默启动参数
+      if (autostartEnabled) {
+        await toggleAutostart(silentStartEnabled);
+        autostartEnabled = true;
+      }
+    } catch (error) {
+      console.error("切换静默启动状态失败:", error);
+      silentStartEnabled = await getSilentStartStatus();
     } finally {
       loading = false;
     }
@@ -101,6 +123,31 @@
             onchange={handleAutostartToggle}
           />
           <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500 {loading ? 'opacity-50 cursor-not-allowed' : ''}"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- 静默启动设置 -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 ml-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <Moon class="w-4 h-4 text-indigo-600" />
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">静默启动</h3>
+            <p class="text-xs text-gray-500">启用后，开机启动时不显示主窗口</p>
+          </div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            class="sr-only peer"
+            checked={silentStartEnabled}
+            disabled={loading || !autostartEnabled}
+            onchange={handleSilentStartToggle}
+          />
+          <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500 {loading || !autostartEnabled ? 'opacity-50 cursor-not-allowed' : ''}"></div>
         </label>
       </div>
     </div>

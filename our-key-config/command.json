@@ -26,7 +26,7 @@
     },
     "OpenDownloads": {
         "isEnabled": true,
-        "key": "D",
+        "key": "DD",
         "AHKcommand": "downloads"
     },
     "OpenTaskManger": {
@@ -36,12 +36,12 @@
     },
     "OpenBluetooth": {
         "isEnabled": true,
-        "key": "S",
+        "key": "BL",
         "AHKcommand": "bluetooth"
     },
     "OpenWiFi": {
         "isEnabled": true,
-        "key": "W",
+        "key": "WF",
         "AHKcommand": "wifi"
     },
     "OpenSound": {
@@ -53,5 +53,15 @@
         "isEnabled": true,
         "key": "R",
         "AHKcommand": "recycle"
+    },
+    "ReBoot": {
+        "isEnabled": true,
+        "key": "RB",
+        "AHKcommand": "reboot"
+    },
+    "ShutDown": {
+        "isEnabled": true,
+        "key": "SD",
+        "AHKcommand": "shutdown"
     }
 }

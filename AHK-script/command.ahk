@@ -35,6 +35,18 @@ OpenRecycleBin() {
     Run "explorer.exe shell:RecycleBinFolder"
 }
 
+; 重启系统
+RebootSystem() {
+    ; 使用 shutdown 命令重启系统
+    Run "shutdown.exe /r /t 0"
+}
+
+; 关闭系统
+ShutdownSystem() {
+    ; 使用 shutdown 命令关闭系统
+    Run "shutdown.exe /s /t 0"
+}
+
 ; 以管理员权限运行 Command Prompt 快捷方式
 OpenTerminal() {
     ; Command Prompt 快捷方式的完整路径
@@ -104,7 +116,11 @@ main() {
         "volume", OpenVolumeSettings,
         "sound", OpenVolumeSettings,
         "recycle", OpenRecycleBin,
-        "bin", OpenRecycleBin
+        "bin", OpenRecycleBin,
+        "rb", RebootSystem,
+        "reboot", RebootSystem,
+        "sd", ShutdownSystem,
+        "shutdown", ShutdownSystem
     )
 
     ; 调用对应的函数
