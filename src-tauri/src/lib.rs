@@ -5,6 +5,7 @@ use tauri::{Manager, WindowEvent};
 mod ahk;
 mod command;
 mod hooks;
+mod settings;
 mod shortcuts;
 mod tray;
 
@@ -82,26 +83,9 @@ pub fn run(silent_start: bool) {
             ahk::update_command_config,
             command::run_command,
             command::run_ahk_command,
-            get_silent_start_status,
-            set_silent_start
+            settings::get_silent_start_status,
+            settings::set_silent_start
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-/// 获取静默启动状态
-#[tauri::command]
-fn get_silent_start_status(app: tauri::AppHandle) -> Result<bool, String> {
-    hooks::read_settings(&app)
-        .map(|settings| settings.silent_start)
-        .map_err(|e| e.to_string())
-}
-
-/// 设置静默启动状态
-#[tauri::command]
-fn set_silent_start(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
-    let mut settings = hooks::read_settings(&app).map_err(|e| e.to_string())?;
-    settings.silent_start = enabled;
-    hooks::save_settings(&app, &settings).map_err(|e| e.to_string())?;
-    Ok(())
 }
