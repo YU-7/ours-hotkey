@@ -219,32 +219,82 @@ pub fn test_ahk_paths(app: AppHandle) -> Result<String, String> {
     Ok(result)
 }
 
+/// 命令窗口常量配置
+mod command_window {
+    pub const WINDOW_NAME: &str = "command";
+    pub const TITLE: &str = "快捷命令";
+    pub const WIDTH: f64 = 500.0;
+    pub const HEIGHT: f64 = 90.0;
+    pub const DEFAULT_X: f64 = 0.0;
+    pub const DEFAULT_Y: f64 = 300.0;
+    pub const VERTICAL_RATIO: f64 = 0.25; // 屏幕高度 25%
+}
+
+/// 计算窗口居中位置的辅助函数
+#[allow(dead_code)]
+fn calculate_window_position(
+    screen_width: f64,
+    screen_height: f64,
+    window_width: f64,
+    window_height: f64,
+    vertical_ratio: f64,
+) -> (f64, f64) {
+    let x = (screen_width - window_width) / 2.0;
+    let y = screen_height * vertical_ratio;
+    (x, y)
+}
+
 #[tauri::command]
 pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
-    // 检查窗口是否已经存在
-    if let Some(window) = app.get_webview_window("command") {
-        // 如果窗口存在，聚焦到它
-        window.set_focus().map_err(|e| format!("Failed to focus command window: {}", e))?;
-        return Ok("Command window focused".to_string());
+    // 1. 使用常量替代硬编码字符串，提高可维护性
+    // 2. 使用 early return 模式，减少嵌套
+    if let Some(window) = app.get_webview_window(command_window::WINDOW_NAME) {
+        return window.set_focus()
+            .map(|_| "Command window focused".to_string())
+            .map_err(|e| format!("聚焦命令窗口失败: {}", e));
     }
 
-    // 创建新的 command 窗口
-    let window = tauri::webview::WebviewWindowBuilder::new(&app, "command", WebviewUrl::App("/command".into()))
-        .title("快捷命令")
-        .inner_size(400.0, 80.0)
-        .center()
-        .decorations(false) // 无边框窗口
-        .transparent(true) // 透明背景
-        .always_on_top(true) // 始终在最前
-        .skip_taskbar(true) // 不显示在任务栏
-        .resizable(false) // 不可调整大小
-        .build()
-        .map_err(|e| format!("Failed to create command window: {}", e))?;
+    // 3. 使用链式调用和 ? 操作符简化错误处理
+    let monitor = app.primary_monitor()
+        .map_err(|e| format!("获取主显示器失败: {}", e))?;
 
-    // 确保窗口获得焦点
-    window.set_focus().map_err(|e| format!("Failed to focus command window: {}", e))?;
+    // 4. 提取常量配置，使用模式匹配处理默认值
+    let (window_x, window_y) = monitor
+        .map(|m| {
+            let screen_width = m.size().width as f64;
+            let screen_height = m.size().height as f64;
+            calculate_window_position(
+                screen_width,
+                screen_height,
+                command_window::WIDTH,
+                command_window::HEIGHT,
+                command_window::VERTICAL_RATIO,
+            )
+        })
+        .unwrap_or((command_window::DEFAULT_X, command_window::DEFAULT_Y));
 
-    Ok("Command window opened".to_string())
+    // 5. 使用 builder 模式链式配置窗口属性
+    let window = tauri::webview::WebviewWindowBuilder::new(
+        &app,
+        command_window::WINDOW_NAME,
+        WebviewUrl::App("/command".into()),
+    )
+    .title(command_window::TITLE)
+    .inner_size(command_window::WIDTH, command_window::HEIGHT)
+    .position(window_x, window_y)
+    .decorations(false)
+    .transparent(true)
+    .always_on_top(true)
+    .skip_taskbar(true)
+    .resizable(false)
+    .build()
+    .map_err(|e| format!("创建命令窗口失败: {}", e))?;
+
+    // 6. 统一错误消息语言（中文）
+    window.set_focus()
+        .map_err(|e| format!("聚焦命令窗口失败: {}", e))?;
+
+    Ok("命令窗口已打开".to_string())
 }
 
 #[derive(Debug, Serialize, Deserialize)]
