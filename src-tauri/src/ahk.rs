@@ -285,7 +285,7 @@ pub async fn open_command_window(app: AppHandle) -> Result<String, String> {
     .inner_size(command_window::WIDTH, command_window::HEIGHT)
     .position(window_x, window_y)
     .decorations(false)
-    .transparent(true)
+    .transparent(false)
     .always_on_top(true)
     .skip_taskbar(true)
     .resizable(false)

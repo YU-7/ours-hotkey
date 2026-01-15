@@ -128,8 +128,8 @@
 
 <svelte:window on:keydown={handleKeydown} on:blur={handleWindowBlur} />
 
-<div class="w-screen h-screen bg-black/50 flex items-center justify-center">
-    <div class="w-full max-w-md h-96 rounded-lg overflow-hidden shadow-lg">
+<div class="w-screen h-screen bg-black flex items-center justify-center">
+    <div class="w-full h-96 rounded-lg overflow-hidden shadow-lg">
         <!-- Search Box -->
         <div class="search-box">
             <input
@@ -160,7 +160,6 @@
     :global(body) {
         margin: 0;
         padding: 0;
-        background: transparent !important;
         overflow: hidden;
     }
 
