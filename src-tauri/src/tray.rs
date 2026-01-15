@@ -1,6 +1,7 @@
 use tauri::menu::MenuBuilder;
 use tauri::tray::TrayIconBuilder;
 use tauri::Manager;
+use tauri_plugin_log::log::{debug, info};
 
 /// 创建托盘菜单
 pub fn create_tray_menu<R: tauri::Runtime>(
@@ -32,7 +33,7 @@ pub fn create_system_tray<R: tauri::Runtime>(
                 }
             } else if event.id.as_ref() == "quit_app" {
                 // 退出应用前关闭所有AHK脚本
-                println!("应用退出请求，关闭所有AHK脚本...");
+                info!("应用退出请求，关闭所有AHK脚本...");
 
                 // 停止所有AHK脚本
                 if let Some(manager) = app.try_state::<crate::ahk::AhkProcessManager>() {

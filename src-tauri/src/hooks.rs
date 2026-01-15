@@ -2,6 +2,7 @@ use crate::ahk;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use tauri::Manager;
+use tauri_plugin_log::log::{error, info, warn};
 
 /// 读取配置文件并自动启动相应的 AHK 脚本
 pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
@@ -19,7 +20,7 @@ pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
     let config_content = match fs::read_to_string(&config_path) {
         Ok(content) => content,
         Err(e) => {
-            println!("无法读取配置文件 {:?}: {}，跳过自动启动", config_path, e);
+            warn!("无法读取配置文件 {:?}: {}，跳过自动启动", config_path, e);
             return Ok(()); // 如果无法读取配置文件，静默跳过
         }
     };
@@ -28,12 +29,12 @@ pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
     let config: AhkConfig = match serde_json::from_str(&config_content) {
         Ok(config) => config,
         Err(e) => {
-            println!("解析配置文件失败: {}，跳过自动启动", e);
+            warn!("解析配置文件失败: {}，跳过自动启动", e);
             return Ok(()); // 如果解析失败，静默跳过
         }
     };
 
-    println!(
+    info!(
         "读取到配置文件: global-hotkey={}, vimMode={}",
         config.global_hotkey, config.vim_mode
     );
@@ -42,16 +43,16 @@ pub fn auto_start_scripts(app: &tauri::AppHandle) -> Result<(), Box<dyn std::err
     if config.global_hotkey {
         let manager = app.state::<ahk::AhkProcessManager>();
         match ahk::start_ahk_script_internal(app, "global-hotkey", manager.inner()) {
-            Ok(msg) => println!("自动启动全局热键脚本: {}", msg),
-            Err(e) => println!("自动启动全局热键脚本失败: {}", e),
+            Ok(msg) => info!("自动启动全局热键脚本: {}", msg),
+            Err(e) => error!("自动启动全局热键脚本失败: {}", e),
         }
     }
 
     if config.vim_mode {
         let manager = app.state::<ahk::AhkProcessManager>();
         match ahk::start_ahk_script_internal(app, "vim-mode", manager.inner()) {
-            Ok(msg) => println!("自动启动 Vim 模式脚本: {}", msg),
-            Err(e) => println!("自动启动 Vim 模式脚本失败: {}", e),
+            Ok(msg) => info!("自动启动 Vim 模式脚本: {}", msg),
+            Err(e) => error!("自动启动 Vim 模式脚本失败: {}", e),
         }
     }
 

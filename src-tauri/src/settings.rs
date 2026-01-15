@@ -10,18 +10,23 @@ pub struct AppSettings {
 }
 
 /// 获取应用设置文件路径
-fn get_settings_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+fn get_settings_path(
+    app: &tauri::AppHandle,
+) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
     let resource_dir = app
         .path()
         .resource_dir()
         .map_err(|e| format!("获取资源目录失败: {}", e))?;
-    Ok(resource_dir.join("_up_").join("our-key-config").join("settings.json"))
+    Ok(resource_dir
+        .join("_up_")
+        .join("our-key-config")
+        .join("settings.json"))
 }
 
 /// 读取应用设置
 pub fn read_settings(app: &tauri::AppHandle) -> Result<AppSettings, Box<dyn std::error::Error>> {
     let settings_path = get_settings_path(app)?;
-    
+
     let content = match fs::read_to_string(&settings_path) {
         Ok(content) => content,
         Err(_) => {
@@ -29,22 +34,25 @@ pub fn read_settings(app: &tauri::AppHandle) -> Result<AppSettings, Box<dyn std:
             return Ok(AppSettings::default());
         }
     };
-    
+
     serde_json::from_str(&content).map_err(|e| format!("解析设置文件失败: {}", e).into())
 }
 
 /// 保存应用设置
-pub fn save_settings(app: &tauri::AppHandle, settings: &AppSettings) -> Result<(), Box<dyn std::error::Error>> {
+pub fn save_settings(
+    app: &tauri::AppHandle,
+    settings: &AppSettings,
+) -> Result<(), Box<dyn std::error::Error>> {
     let settings_path = get_settings_path(app)?;
-    
+
     // 确保目录存在
     if let Some(parent) = settings_path.parent() {
         fs::create_dir_all(parent)?;
     }
-    
+
     let content = serde_json::to_string_pretty(settings)?;
     fs::write(&settings_path, content)?;
-    
+
     Ok(())
 }
 
