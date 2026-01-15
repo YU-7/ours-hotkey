@@ -2,13 +2,6 @@
     import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
     import { invoke } from '@tauri-apps/api/core';
     import { onMount } from 'svelte';
-    import { Search, X } from '@lucide/svelte';
-
-    let commandInput = $state('');
-    let commands = $state<Record<string, { isEnabled: boolean; key: string; AHKcommand: string }>>(
-        {}
-    );
-    let debounceTimer: number | undefined;
 
     interface CommandConfig {
         isEnabled: boolean;
@@ -19,6 +12,11 @@
     interface CommandData {
         [key: string]: CommandConfig;
     }
+
+    let commandInput = $state('');
+    let commands = $state<CommandData>({});
+    let debounceTimer: number | undefined;
+    let inputElement: HTMLInputElement | undefined = $state();
 
     async function loadCommands() {
         try {
@@ -114,8 +112,6 @@
         }
     }
 
-    let inputElement: HTMLInputElement | undefined = $state();
-
     onMount(async () => {
         await loadCommands();
 
@@ -133,33 +129,26 @@
 <svelte:window on:keydown={handleKeydown} on:blur={handleWindowBlur} />
 
 <div class="w-screen h-screen bg-black/50 flex items-center justify-center">
-    <div class="w-full max-w-md">
+    <div class="w-full max-w-md h-96 rounded-lg overflow-hidden shadow-lg">
         <!-- Search Box -->
-        <div class="w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-            <div class="px-4 py-3">
-                <div class="flex items-center gap-3">
-                    <Search class="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <!-- svelte-ignore a11y_autofocus -->
-                    <input
-                        bind:value={commandInput}
-                        bind:this={inputElement}
-                        type="text"
-                        placeholder="输入命令并按回车执行..."
-                        class="flex-1 text-sm text-gray-900 placeholder-gray-500 focus:outline-none bg-transparent"
-                        autofocus
-                        onblur={handleBlur}
-                    />
-                </div>
-            </div>
+        <div class="search-box">
+            <input
+                bind:value={commandInput}
+                bind:this={inputElement}
+                type="text"
+                placeholder="输入命令并按回车执行..."
+                class="invisible-input"
+                autofocus
+                onblur={handleBlur}
+            />
 
-            <!-- Footer -->
-            <div class="px-4 py-2 bg-gray-50 border-t border-gray-200">
-                <div class="flex items-center justify-between text-xs text-gray-500">
-                    <span>按 ESC 关闭</span>
-                    {#if Object.keys(commands).length > 0}
-                        <span
-                            >{Object.values(commands).filter((cmd) => cmd.isEnabled).length} 个可用命令</span
-                        >
+            <div class="typing-container">
+                <div class="typing-display">
+                    {#each commandInput.split('') as char, index}
+                        <span class="typing-char" style="--delay: {index * 0.08}s">{char}</span>
+                    {/each}
+                    {#if commandInput.length === 0}
+                        <span class="typing-placeholder">输入命令...</span>
                     {/if}
                 </div>
             </div>
@@ -173,5 +162,95 @@
         padding: 0;
         background: transparent !important;
         overflow: hidden;
+    }
+
+    .search-box {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(255, 255, 255, 0.95) 60%,
+            rgba(255, 255, 255, 0.85) 80%,
+            rgba(255, 255, 255, 0.7) 100%
+        );
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06),
+            0 0 20px rgba(255, 255, 255, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .invisible-input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        border: none;
+        outline: none;
+        pointer-events: none;
+    }
+
+    .typing-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        min-height: 8rem;
+    }
+
+    .typing-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .typing-char {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        font-size: 2.67rem;
+        font-weight: 500;
+        color: #3b82f6;
+        border: 3px solid #3b82f6;
+        border-radius: 0.5rem;
+        opacity: 0;
+        transform: scale(0.8);
+        animation: charAppear 0.3s ease-out forwards;
+        animation-delay: var(--delay);
+    }
+
+    @keyframes charAppear {
+        0% {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        50% {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .typing-placeholder {
+        font-size: 0.875rem;
+        color: #9ca3af;
+        font-weight: 400;
     }
 </style>
