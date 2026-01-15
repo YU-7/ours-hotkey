@@ -13,19 +13,23 @@
 ## 新增功能：无边框命令窗口
 
 ### 功能说明
+
 - 创建一个居中的无边框命令窗口
 - 支持透明背景和模糊效果
 - 窗口始终置顶，不显示在任务栏
 - 支持键盘快捷键操作（Esc 关闭，Enter 执行）
 
 ### 如何测试
+
 1. 启动应用
 2. 进入"软件设置"页面
 3. 点击"打开命令窗口"按钮
 4. 在弹出的窗口中输入命令并按 Enter 执行，或按 Esc 关闭
 
 ### 命令行模式
+
 你也可以通过环境变量直接启动命令窗口：
+
 ```bash
 # 直接启动命令窗口
 COMMAND_MODE=1 pnpm tauri dev
@@ -35,6 +39,7 @@ COMMAND_MODE=1 ./src-tauri/target/debug/ours-hotkey.exe
 ```
 
 ### 技术实现
+
 - 使用 Tauri 的 `decorations: false` 移除窗口边框
 - 设置 `transparent: true` 实现透明背景
 - 通过 `alwaysOnTop: true` 保持窗口置顶
