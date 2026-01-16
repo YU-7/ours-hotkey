@@ -6,6 +6,7 @@ SetWorkingDir(A_ScriptDir)
 #NoTrayIcon
 ; #Include %A_ScriptDir%\config\system-level.ahk
 Persistent
+SetCapsLockState("AlwaysOff")
 ; 阻止 CapsLock 的默认行为，并触发 F24 来通知 Tauri
 CapsLock:: {
     ; 阻止 CapsLock 的默认行为（不切换大小写锁定）
